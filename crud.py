@@ -1,29 +1,39 @@
 from sqlalchemy.orm import Session
-import copy
 
 from . import models, schemas
 
 
 def fetch_new_messages(db: Session, recipient: str):
-    return db.query(models.Messages).filter(
-        models.Messages.recipient == recipient, models.Messages.fetched == False
+    return (
+        db.query(models.Messages)
+        .filter(
+            models.Messages.recipient == recipient, models.Messages.fetched == False
+        )
+        .all()
     )
 
 
-# TODO: Add range specifiers and order results based on time
-def fetch_messages(db: Session, recipient: str):
-    messages = db.query(models.Messages).filter(models.Messages.recipient == recipient).all()
-    return messages
-
-
-def delete_message(db: Session, id: int):
-    # TODO
-    pass
+def fetch_messages(
+    db: Session,
+    recipient: str,
+    first: int = None,
+    last: int = None,
+):
+    return (
+        db.query(models.Messages)
+        .filter(models.Messages.recipient == recipient)
+        .order_by(models.Messages.time_sent)[first:last]
+    )
 
 
 def delete_messages(db: Session, ids: list[int]):
-    # TODO
-    pass
+    deleted = (
+        db.query(models.Messages)
+        .filter(models.Messages.id.in_(ids))
+        .delete(synchronize_session=False)
+    )
+    db.commit()
+    return deleted
 
 
 def post_message(db: Session, message: schemas.MessageCreate):

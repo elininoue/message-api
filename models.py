@@ -1,7 +1,6 @@
 import datetime
 from .database import Base
 from sqlalchemy import Boolean, Column, Integer, String, DateTime
-from sqlalchemy.sql import func
 
 
 class Messages(Base):

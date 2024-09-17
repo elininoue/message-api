@@ -29,12 +29,12 @@ def update_fetched_messages(db: Session, recipient: str):
 def fetch_all_messages(
     user: str,
     background_tasks: BackgroundTasks,
-    first: int = None,
-    last: int = None,
+    offset: int = None,
+    limit: int = 100,
     db: Session = Depends(get_db),
 ):
     background_tasks.add_task(update_fetched_messages, db, user)
-    db_messages = crud.fetch_messages(db, recipient=user, first=first, last=last)
+    db_messages = crud.fetch_messages(db, recipient=user, first=offset, last=limit)
     return db_messages
 
 

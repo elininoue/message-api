@@ -1,4 +1,4 @@
-from fastapi import BackgroundTasks, Depends, FastAPI
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
 from . import crud, models, schemas
@@ -53,7 +53,7 @@ def send_message(message: schemas.MessageCreate, db: Session = Depends(get_db)):
     return db_message
 
 
-@app.post("/messages/delete", response_model=None)
+@app.post("/messages/delete")
 def delete_messages(ids: list[int], db: Session = Depends(get_db)):
     num_messages_deleted = crud.delete_messages(db, ids=ids)
     if num_messages_deleted == 0:
@@ -61,10 +61,9 @@ def delete_messages(ids: list[int], db: Session = Depends(get_db)):
     return {"Number of msgs deleted": num_messages_deleted}
 
 
-# TODO: change response_model
-@app.delete("/messages/{id}", response_model=None)
+@app.delete("/messages/{id}", status_code=204)
 def delete_message(id: int, db: Session = Depends(get_db)):
     num_messages_deleted = crud.delete_messages(db, ids=[id])
     if num_messages_deleted == 0:
-        return {"msg": "No messages deleted"}
-    return {"Number of msgs deleted": num_messages_deleted}
+        raise HTTPException(status_code=404, detail="Message not found")
+    return

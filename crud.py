@@ -10,6 +10,17 @@ def fetch_messages(
     first: int,
     last: int,
 ):
+    """
+    Returns messages within the specified range from the specified database.
+    The messages are ordered based on the time they were sent, with most recent messages first.
+
+    :param db: the database session to retrieve messages from
+    :param recipient: the user who's messages should be retrieved
+    :param first: the start index (inclusive)
+    :param last: the stop index (exclusive)
+    :param fetch_old: true if messages that have already been fetched should be included, false otherwise
+    """
+
     return (
         db.query(models.Messages)
         .filter(
@@ -20,6 +31,14 @@ def fetch_messages(
 
 
 def delete_messages(db: Session, ids: list[int]):
+    """
+    Removes the specified messages from the database.
+
+    :param db: the database session to remove messages from
+    :param ids: a list of ids of the messages to delete
+    :return: the number of successfully deleted messages
+    """
+
     deleted = (
         db.query(models.Messages)
         .filter(models.Messages.id.in_(ids))
@@ -30,6 +49,14 @@ def delete_messages(db: Session, ids: list[int]):
 
 
 def post_message(db: Session, message: schemas.MessageCreate):
+    """
+    Adds the specified message to the database.
+
+    :param db: the database session to insert message into
+    :param message: the message to add
+    :return: the message as it appears in the database
+    """
+
     db_message = models.Messages(
         content=message.content, recipient=message.recipient, sender=message.sender
     )

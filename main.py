@@ -25,7 +25,7 @@ def update_fetched_messages(db: Session, recipient: str):
     db.commit()
 
 
-@app.get("v1/messages/{user}", response_model=list[schemas.Message])
+@app.get("/v1/messages/{user}", response_model=list[schemas.Message])
 def fetch_all_messages(
     user: str,
     background_tasks: BackgroundTasks,
@@ -38,7 +38,7 @@ def fetch_all_messages(
     return db_messages
 
 
-@app.get("v1/messages/new-messages/{user}", response_model=list[schemas.Message])
+@app.get("/v1/messages/new-messages/{user}", response_model=list[schemas.Message])
 def fetch_new_messages(
     user: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
 ):
@@ -47,13 +47,13 @@ def fetch_new_messages(
     return db_message
 
 
-@app.post("v1/messages/", response_model=schemas.Message)
+@app.post("/v1/messages/", response_model=schemas.Message)
 def send_message(message: schemas.MessageCreate, db: Session = Depends(get_db)):
     db_message = crud.post_message(db, message=message)
     return db_message
 
 
-@app.post("v1/messages/delete")
+@app.post("/v1/messages/delete")
 def delete_messages(ids: list[int], db: Session = Depends(get_db)):
     num_messages_deleted = crud.delete_messages(db, ids=ids)
     if num_messages_deleted == 0:
@@ -61,7 +61,7 @@ def delete_messages(ids: list[int], db: Session = Depends(get_db)):
     return {"total": num_messages_deleted}
 
 
-@app.delete("v1/messages/{id}", status_code=204)
+@app.delete("/v1/messages/{id}", status_code=204)
 def delete_message(id: int, db: Session = Depends(get_db)):
     num_messages_deleted = crud.delete_messages(db, ids=[id])
     if num_messages_deleted == 0:

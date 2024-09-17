@@ -22,7 +22,7 @@ def fetch_messages(
     return (
         db.query(models.Messages)
         .filter(models.Messages.recipient == recipient)
-        .order_by(models.Messages.time_sent)[first:last]
+        .order_by(models.Messages.time_sent.desc())[first:last]
     )
 
 

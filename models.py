@@ -1,6 +1,10 @@
 import datetime
 from .database import Base
-from sqlalchemy import Boolean, Column, Integer, String, DateTime
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, func
+
+
+def current_utc_timestamp():
+    return datetime.datetime.now(datetime.timezone.utc)
 
 
 class Messages(Base):
@@ -11,6 +15,6 @@ class Messages(Base):
     sender = Column(String)
     fetched = Column(Boolean, default=False)
     time_sent = Column(
-        DateTime, default=datetime.datetime.now()
+        DateTime, nullable=False, default=current_utc_timestamp
     )  # TODO: Handle time zones
     content = Column(String)

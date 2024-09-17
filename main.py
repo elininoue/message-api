@@ -4,6 +4,9 @@ from sqlalchemy.orm import Session
 from . import crud, models, schemas
 from .database import SessionLocal, engine
 
+MAXIMUM_REQUEST_LIMIT = 500
+DEFAULT_NUM_MSGS = 100
+
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -29,22 +32,28 @@ def update_fetched_messages(db: Session, recipient: str):
 def fetch_all_messages(
     user: str,
     background_tasks: BackgroundTasks,
-    offset: int = None,
-    limit: int = 100,
+    offset: int = 0,
+    limit: int = DEFAULT_NUM_MSGS,
+    new_only: bool = False,
     db: Session = Depends(get_db),
 ):
+    if offset < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid offset. Offset needs to be a positive integer.",
+        )
+
+    if limit > MAXIMUM_REQUEST_LIMIT:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Too many messages requested. The maximum limit is {MAXIMUM_REQUEST_LIMIT}.",
+        )
+
     background_tasks.add_task(update_fetched_messages, db, user)
-    db_messages = crud.fetch_messages(db, recipient=user, first=offset, last=limit)
+    db_messages = crud.fetch_messages(
+        db, recipient=user, first=offset, last=limit, new_only=not (new_only)
+    )
     return db_messages
-
-
-@app.get("/v1/messages/new-messages/{user}", response_model=list[schemas.Message])
-def fetch_new_messages(
-    user: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
-):
-    background_tasks.add_task(update_fetched_messages, db, user)
-    db_message = crud.fetch_new_messages(db, user)
-    return db_message
 
 
 @app.post("/v1/messages/", response_model=schemas.Message)

@@ -3,25 +3,18 @@ from sqlalchemy.orm import Session
 from . import models, schemas
 
 
-def fetch_new_messages(db: Session, recipient: str):
-    return (
-        db.query(models.Messages)
-        .filter(
-            models.Messages.recipient == recipient, models.Messages.fetched == False
-        )
-        .all()
-    )
-
-
 def fetch_messages(
     db: Session,
     recipient: str,
-    first: int = None,
-    last: int = None,
+    fetch_old: bool,
+    first: int,
+    last: int,
 ):
     return (
         db.query(models.Messages)
-        .filter(models.Messages.recipient == recipient)
+        .filter(
+            models.Messages.recipient == recipient, models.Messages.fetched == fetch_old
+        )
         .order_by(models.Messages.time_sent.desc())[first:last]
     )
 

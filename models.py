@@ -14,7 +14,5 @@ class Messages(Base):
     recipient = Column(String)
     sender = Column(String)
     fetched = Column(Boolean, default=False)
-    time_sent = Column(
-        DateTime, nullable=False, default=current_utc_timestamp
-    )  # TODO: Handle time zones
+    time_sent = Column(DateTime, nullable=False, default=current_utc_timestamp)
     content = Column(String)

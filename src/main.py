@@ -50,17 +50,17 @@ def fetch_all_messages(
             detail="Invalid index. Start index needs to be a positive integer.",
         )
 
-    if stop_at <= start_at:
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid index. Stop index needs to be greater than start index.",
-        )
-
     # Return error response if stop index is invalid
     if stop_at < 0:
         raise HTTPException(
             status_code=400,
             detail="Invalid index. Stop index needs to be a positive integer.",
+        )
+
+    if stop_at <= start_at:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid index. Stop index needs to be greater than start index.",
         )
 
     # Return error response if client requests too many messages at once.

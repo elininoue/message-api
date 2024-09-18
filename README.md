@@ -16,9 +16,11 @@ The body of the request should contain the following parameters:
 
 The parameter `user` is the user whose messages are to be retrieved. Some optional query parameters can be used to filter the messages:
 
-- **offset**: The number of messages to skip (default `0`)
-- **limit**: The maximum number of messages to retrieve (default `100`, max `500`)
+- **start_at**: The first index to retreive messages from (inclusive, default `0`)
+- **stop_at**: The last index to retreive messages from (exclusive, if none is provided, 100 messages will be retrieved)
 - **only_new**: If set to `true`, only new messages will be retrieved (default `false`)
+
+Users can only request a maximum of 500 messages at a time.
 
 The response will contain a list of messages ordered by the time they were sent in descending order. 
 

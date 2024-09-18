@@ -33,22 +33,33 @@ def update_fetched_messages(db: Session, recipient: str):
 def fetch_all_messages(
     user: str,
     background_tasks: BackgroundTasks,
-    offset: int = 0,
-    limit: int = DEFAULT_NUM_MSGS,
+    start_at: int = 0,
+    stop_at: int = None,
     new_only: bool = False,
     db: Session = Depends(get_db),
 ):
 
-    # Return error response if offset is invalid
-    if offset < 0:
+    # If no stop index is provided, fetch a default number of messages
+    if stop_at == None:
+        stop_at = start_at + DEFAULT_NUM_MSGS
+
+    # Return error response if start index is invalid
+    if start_at < 0:
         raise HTTPException(
             status_code=400,
-            detail="Invalid offset. Offset needs to be a positive integer.",
+            detail="Invalid index. Start index needs to be a positive integer.",
+        )
+
+    # Return error response if stop index is invalid
+    if stop_at < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid index. Stop index needs to be a positive integer.",
         )
 
     # Return error response if client requests too many messages at once.
     # A precaution to avoid sending responses with a lot of data, putting a high load on the server.
-    if limit > MAXIMUM_REQUEST_LIMIT:
+    if stop_at - start_at > MAXIMUM_REQUEST_LIMIT:
         raise HTTPException(
             status_code=400,
             detail=f"Too many messages requested. The maximum limit is {MAXIMUM_REQUEST_LIMIT}.",
@@ -58,7 +69,7 @@ def fetch_all_messages(
     # Updated AFTER sending response so client can see what has been fetched previously.
     background_tasks.add_task(update_fetched_messages, db, user)
     db_messages = crud.fetch_messages(
-        db, recipient=user, first=offset, last=offset + limit, fetch_old=not (new_only)
+        db, recipient=user, first=start_at, last=stop_at, fetch_old=not (new_only)
     )
     return db_messages
 

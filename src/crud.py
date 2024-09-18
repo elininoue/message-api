@@ -26,7 +26,7 @@ def fetch_messages(
     if not (fetch_old):
         messages = messages.filter(models.Messages.fetched == False)
 
-    messages.order_by(models.Messages.time_sent.desc())[first:last]
+    messages = messages.order_by(models.Messages.time_sent.desc())[first:last]
 
     return messages
 
